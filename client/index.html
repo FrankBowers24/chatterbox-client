@@ -25,16 +25,25 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
-      <select id="roomSelect"></select>
-      <br />
-      <div id="send">
-        Message:
-        <input id="message"></input>
-        <button class="submit">Submit</button></div>
-      </div>
-      <!-- Your HTML goes here! -->
-      <ul id="chats">
-      </ul>
+      <div class="spinner"><img src="images/spiffygif_46x46.gif"></div>
+      User: <input type="text" class='sendingUsername'/>
+    <div id="rooms">
+      Room:
+      <select id="roomSelect">
+      </select>
     </div>
+    <div>
+      Friends:
+      <select id="friendSelect">
+      </select>
+      <br />
+    </div>
+    <form action="#" id="send" method="post">
+      <input type="text" name="message" id="message"/>
+      <input type="submit" name="submit" class="submit"/>
+    </form>
+    <button class="refresh">Refresh</button>
+    <div id="chats"></div>
+  </div>
   </body>
 </html>

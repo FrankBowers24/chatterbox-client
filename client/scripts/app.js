@@ -2,8 +2,7 @@
 
 var App = function() {
   this.server = 'https://api.parse.com/1/classes/chatterbox';
-
-}
+};
 
 var app = new App();
 
@@ -15,14 +14,33 @@ App.prototype.init = function() {
   //   that.fetch();
   // });
   this.fetch();
-}
-
-App.prototype._userClick = function () {
-  this.addFriend();
 };
 
-App.prototype.addFriend = function () {
+App.prototype.handleSubmit = function() {
+  var msg = {
+    username: $('.sendingUsername').val() || "Anonymous",
+    roomname: $('#roomSelect').val(),
+    text: $('#message').val()
+  };
+  this.send(msg);
+};
 
+App.prototype._userClick = function ($msg) {
+  this.addFriend($msg.find('.username'));
+};
+
+App.prototype.addFriend = function ($friend) {
+  var $friends = $('#friendSelect > option');
+  var hasFriend = false;
+  for(var i = 0; i < $friends.length; i++){
+    if($($friends[i]).val() === $friend.html()) {
+      hasFriend = true;
+    }
+  }
+  if(!hasFriend){
+  $('#friendSelect').append('<option value=' + $friend.html() + '>'
+        + $friend.html() + '</option>');
+  }
 };
 
 App.prototype.clearMessages = function() {
@@ -37,17 +55,35 @@ App.prototype.showMessages = function (data) {
     this.addMessage(msgData);
   }
   $('time.timeago').timeago();
+  $('.spinner').toggle();
+};
+
+App.prototype._checkFromFriend = function ($msgContent) {
+  var $friends = $('#friendSelect > option');
+  for(var i = 0; i < $friends.length; i++){
+    if($msgContent.parent('li').find('.username').text() === $($friends[i]).val()) {
+      return true
+    }
+  }
+  return false;
 };
 
 App.prototype.addMessage = function(message) {
   var $ul = $('#chats');
   var source   = $('#msgTemplate').html();
   var userClickCallback = this._userClick.bind(this);
+  var $msgContent;
   if (source) {
     var template = Handlebars.compile(source);
     var msgHTML = template(message);
     var $msg = $($.parseHTML(msgHTML));
-    $msg.on('click', userClickCallback);
+    $msg.on('click', function (){
+      userClickCallback($(this));
+    });
+    $msgContent = $msg.find('.content');
+    if(this._checkFromFriend($msgContent)){
+      $msgContent.addClass('friendText');
+    }
     $ul.append($msg);
   }
 };
@@ -101,12 +137,17 @@ App.prototype.send = function(message) {
 };
 
 
-
-
-
 $('document').ready(function (){
- app.init();
-
+  app.init();
+  $('#send').on('submit', function(event) {
+    event.preventDefault();
+    app.handleSubmit();
+  });
+  $('.refresh').on('click', function() {
+    $('.spinner').toggle();
+    app.clearMessages();
+    app.fetch();
+  });
 });
 
 
